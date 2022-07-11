@@ -1,0 +1,67 @@
+#!/bin/bash
+
+read -p "Введите путь до файла " pathFile 
+if [[ -f $pathFile  &&  $pathFile != ""  &&  $pathFile == *.txt ]]
+then
+	read -p "Введите строку поиска " changeString
+	read -p "Введите замену " finalString
+
+	sed -i '' "s/$changeString/$finalString/g" $pathFile
+
+	size=(`wc -c $pathFile`)
+	dat=`date "+%Y-%m-%d %H:%M"`
+	sha256=`shasum -a 256 $pathFile`
+
+	echo "${pathFile} - ${size} - ${dat} - ${sha256:0:64} - sha256" >> files.log
+else
+	echo Некорректный файл
+fi
+#!/bin/bash
+
+read name
+
+if [ -f $name ] && [ $name != ""  ] && [ $name ==  *.log ]
+then 
+
+	array=()
+	shaTotal=()
+
+	index=0
+	while read line
+	do
+		array[$index]="${line%.txt*}"
+		preStr="${line#*:}"
+		prStr="${preStr:5}"
+		shaTotal[$index]="${prStr%-*}"
+		let "index+=1"
+	done < $name
+
+	logSize=${#array[*]}
+
+	array=($(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+	shaTotal=($(echo "${shaTotal[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+
+	count=0
+	tmp=array[0]
+	for item in ${array[*]}; do
+		if [ $tmp != $item ]
+		then 
+			tmp=$item
+			let "count+=1"
+		fi
+	done
+
+	shaCount=0
+	tmpAr=shaTotal[0]
+	for item in ${shaTotal[*]}; do
+		if [ $tmpAr != $item ]
+		then 
+			tmpAr=$item
+			let "shaCount+=1"
+		fi
+	done
+
+	echo "Total lines ${logSize} Uniq file ${count} Uniq sha ${shaCount}"
+else
+	echo "Chto za her ti tut nesesh"
+fi
