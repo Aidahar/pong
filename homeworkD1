@@ -1,0 +1,25 @@
+#!/bin/bash
+
+mv door_management_fi door_management_files
+cd door_management_files
+mkdir door_configuration
+mv *.conf door_configuration
+mkdir door_map
+mv door_map_1.1 door_map
+mkdir door_logs
+mv *.log door_logs
+
+#!/bin/bash
+
+PID=`pgrep -f ai_door_control.sh`
+kill $PID
+
+#!/bin/bash
+
+bash ./ai_help/keygen.sh
+cp -R key ai_help/
+rm ai_help/key/file*
+cd ai_help
+bash ./unifier.sh
+cd ..
+rm -R key
